@@ -13,14 +13,19 @@ let url = "https://www.cricbuzz.com/" ;
         let browser = await puppeteer.launch({
             headless : false,
             defaultViewport : null,
-            args :["--start-maximized"]
+            args :["--start-maximized"],
         });
     
         let pages = await browser.pages();
     
         page = pages[0];
         await page.goto(url);
-        await page.click("#cb-main-menu .cb-hm-mnu-itm");
+        
+        await Promise.all([
+            page.click("#cb-main-menu .cb-hm-mnu-itm"), page.waitForNavigation({
+              waitUntil: "networkidle2"
+            })
+          ])
         
         let matchLink = await getCorrectMatchLink(page);
          console.log(matchLink)
@@ -29,7 +34,7 @@ let url = "https://www.cricbuzz.com/" ;
         setInterval(async()=>{
             await page.reload();
             await getScoreOnInterval(page)
-        }, 10000);
+        }, 3000);
     }
     catch(err){
       console.log(err);
